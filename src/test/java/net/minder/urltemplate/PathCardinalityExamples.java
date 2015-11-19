@@ -85,6 +85,24 @@ public class PathCardinalityExamples {
   }
 
   @Test
+  public void testStaticMatch() throws Exception {
+    // Positive.
+    input = new URI( "http://input-host:777/test-input-root/path-one/path-two/test-file" );
+    pattern = Parser.parse( "*://*:*/test-input-root/{path}" );
+    template = Parser.parse( "https://test-host:42/test-output-root/{path}" );
+    expect = new URI( "https://test-host:42/test-output-root/path-one/path-two/test-file" );
+    output = Rewriter.rewrite( input, pattern, template, null, null );
+    assertThat( output, is( expect ) );
+
+    // Negative.
+    input = new URI( "http://input-host:777/mismatch-root/path-one/path-two/test-file" );
+    pattern = Parser.parse( "*://*:*/test-input-root/{path=*}" );
+    template = Parser.parse( "https://test-host:42/test-output-root/{path}" );
+    output = Rewriter.rewrite( input, pattern, template, null, null );
+    assertThat( output, is( nullValue() ) );
+  }
+
+  @Test
   public void testPartialMatch() throws Exception {
     // Positive.
     input = new URI( "http://input-host:777/test-some-root/path-one/path-two/test-file" );
